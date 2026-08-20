@@ -1,0 +1,31 @@
+# Build verification for hand-made changes (the daily update pipeline
+# validates its own commits, see update.yml).
+
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, system: x86_64-linux }
+          - { os: ubuntu-24.04-arm, system: aarch64-linux }
+          - { os: macos-14, system: aarch64-darwin }
+          - { os: macos-15-intel, system: x86_64-darwin }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: cachix/install-nix-action@v31
+
+      - name: Build kimi-code (npm variant)
+        run: nix build --print-out-paths ".#packages.${{ matrix.system }}.default"
+
+      - name: Build kimi-code-standalone (SEA variant)
+        run: nix build --print-out-paths ".#packages.${{ matrix.system }}.kimi-code-standalone"

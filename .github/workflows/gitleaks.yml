@@ -1,0 +1,24 @@
+# Secret scanning. The local pre-commit hook (.githooks/) is fail-open and
+# does not ship with clones — this workflow is the enforcing layer.
+
+name: gitleaks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

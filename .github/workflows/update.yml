@@ -1,0 +1,97 @@
+# Daily update pipeline.
+#
+#   update  -> check npm for a new @moonshot-ai/kimi-code release; if found,
+#              regenerate sources.json and push it to the `update-candidate`
+#              branch (force-pushed, only ever one candidate at a time).
+#   build   -> build the candidate on all four supported platforms.
+#   publish -> fast-forward main to the candidate, only if every build passed.
+#
+# The candidate-then-fast-forward dance exists because pushes made with the
+# default GITHUB_TOKEN do not trigger further workflows; validating inside
+# this run and merging to main ourselves keeps main always green without a
+# personal access token.
+
+name: update
+
+on:
+  schedule:
+    # Every day at 01:17 UTC (off the :00/:30 rush).
+    - cron: "17 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.update.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Update sources.json
+        id: update
+        run: |
+          version="$(scripts/update-sources.sh)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Push candidate branch
+        if: steps.update.outputs.version != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B update-candidate
+          git add sources.json
+          git commit -m "chore: update kimi-code to ${{ steps.update.outputs.version }}"
+          git push -f origin update-candidate
+
+  build:
+    needs: update
+    if: needs.update.outputs.version != ''
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # macos-15-intel is the last free x86_64 macOS runner
+          # (retires ~Fall 2027, along with GitHub's Intel support).
+          - { os: ubuntu-latest, system: x86_64-linux }
+          - { os: ubuntu-24.04-arm, system: aarch64-linux }
+          - { os: macos-14, system: aarch64-darwin }
+          - { os: macos-15-intel, system: x86_64-darwin }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: update-candidate
+
+      - uses: cachix/install-nix-action@v31
+
+      # installCheckPhase runs `kimi --version`, so this exercises the
+      # freshly pinned tarballs end to end.
+      - name: Build kimi-code (npm variant)
+        run: nix build --print-out-paths ".#packages.${{ matrix.system }}.default"
+
+      - name: Build kimi-code-standalone (SEA variant)
+        run: nix build --print-out-paths ".#packages.${{ matrix.system }}.kimi-code-standalone"
+
+  publish:
+    needs:
+      - update
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Fast-forward main
+        run: |
+          git fetch origin update-candidate
+          git checkout main
+          git merge --ff-only origin/update-candidate
+          git push origin main

@@ -1,0 +1,6 @@
+result
+result-*
+
+# Local research artifacts — not part of the published repo
+_tmp/
+resources/
