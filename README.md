@@ -2,7 +2,7 @@
 
 Always up-to-date Nix package for [kimi-code](https://github.com/MoonshotAI/kimi-code) — Moonshot AI's coding agent CLI.
 
-**🚀 Automatically updated daily** — new upstream releases land on `main` within 24 hours, only after building green on all four platforms.
+**🚀 Automatically updated every 6 hours** — new upstream releases land on `main` within hours, only after building green on all four platforms.
 
 **📦 Prebuilt official artifacts** — the exact same tarballs that `npm install -g @moonshot-ai/kimi-code` installs.
 
@@ -15,7 +15,7 @@ Always up-to-date Nix package for [kimi-code](https://github.com/MoonshotAI/kimi
 This flake provides immediate access to the latest kimi-code versions with:
 
 1. **Prebuilt Artifacts**: the official npm bundles and release binaries — installs in seconds, not minutes
-2. **Automated Updates**: checked daily; new kimi-code versions land within 24 hours of release
+2. **Automated Updates**: checked every 6 hours; new kimi-code versions land within hours of release
 3. **Zero-Build Updates**: hashes come from the npm registry metadata itself — no tarball downloads needed to bump versions
 4. **Flake-First Design**: direct flake usage, overlay included
 5. **Hash Pinned**: every artifact is pinned by its registry-attested sha512 integrity hash
@@ -28,7 +28,7 @@ The official kimi-code flake builds from source — the whole pnpm workspace (26
 
 | Feature | npm global | nixpkgs | Official flake | This flake |
 |---------|------------|---------|----------------|------------|
-| **Latest Version** | ✅ Always | ❌ Not packaged | ✅ At release | ✅ Daily checks |
+| **Latest Version** | ✅ Always | ❌ Not packaged | ✅ At release | ✅ 6-hour checks |
 | **Install Speed** | ✅ Seconds | — | ❌ Source build | ✅ Seconds |
 | **Declarative Config** | ❌ No | — | ✅ Yes | ✅ Yes |
 | **Stable nixpkgs OK** | n/a | — | ❌ Pins nixos-25.11 | ✅ See below |
@@ -187,7 +187,7 @@ Supported systems: `x86_64-linux`, `aarch64-linux`, `x86_64-darwin`,
 ### How Updates Work
 
 ```
-GitHub Actions (cron, daily 01:17 UTC)
+GitHub Actions (cron, every 6 hours at :17 UTC)
         │
         ▼
 scripts/update-sources.sh ──► registry.npmjs.org  (pure JSON, no downloads)
@@ -228,7 +228,7 @@ files before building.
 
 ### Automated Updates
 
-A GitHub Action checks the npm registry daily. When a new stable version is
+A GitHub Action checks the npm registry every 6 hours. When a new stable version is
 detected:
 
 1. `scripts/update-sources.sh` rewrites `sources.json` with the new version,

@@ -7,7 +7,7 @@
 # platform vs ~57MB for the npm variant plus a shared nodejs).
 #
 # Hashes come from the release's own manifest.json (see the `sea` block in
-# sources.json, regenerated daily by CI).
+# sources.json, regenerated every 6 hours by CI).
 
 { lib
 , stdenv

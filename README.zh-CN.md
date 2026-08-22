@@ -4,7 +4,7 @@
 
 始终保持最新的 [kimi-code](https://github.com/MoonshotAI/kimi-code)（Moonshot AI 的编码 agent CLI）Nix 包。
 
-**🚀 每日自动更新** —— 上游新版本在全平台构建通过后，24 小时内落到 `main`。
+**🚀 每 6 小时自动更新** —— 上游新版本在全平台构建通过后，数小时内落到 `main`。
 
 **📦 官方预编译产物** —— 就是 `npm install -g @moonshot-ai/kimi-code` 会安装的那些 tarball。
 
@@ -13,7 +13,7 @@
 ### 目标：让 Nix 用户始终用上最新的 kimi-code
 
 1. **预编译产物**：官方 npm bundle 和 release 二进制——秒级安装，而不是分钟级编译
-2. **自动更新**：每日检查；新版本发布后 24 小时内可用
+2. **自动更新**：每 6 小时检查；新版本发布后数小时内可用
 3. **零构建更新**：hash 直接来自 npm registry 元数据——升版本不需要下载 tarball
 4. **Flake 优先**：直接 flake 引用，附带 overlay
 5. **hash 固定**：每个产物都用 registry 发布的 sha512 integrity hash 锁定
@@ -26,7 +26,7 @@
 
 | 特性 | npm 全局 | nixpkgs | 官方 flake | 本 flake |
 |---|---|---|---|---|
-| **版本时效** | ✅ 总是最新 | ❌ 未收录 | ✅ 发布即有 | ✅ 每日检查 |
+| **版本时效** | ✅ 总是最新 | ❌ 未收录 | ✅ 发布即有 | ✅ 每 6 小时检查 |
 | **安装速度** | ✅ 秒级 | — | ❌ 源码编译 | ✅ 秒级 |
 | **声明式配置** | ❌ | — | ✅ | ✅ |
 | **兼容 stable nixpkgs** | n/a | — | ❌ 钉死 nixos-25.11 | ✅ 见下文 |
@@ -173,7 +173,7 @@ standalone 变体是 Node.js 的
 ### 更新机制
 
 ```
-GitHub Actions（cron，每日 UTC 01:17）
+GitHub Actions（cron，每 6 小时，UTC :17）
         │
         ▼
 scripts/update-sources.sh ──► registry.npmjs.org（纯 JSON，不下载）
@@ -211,7 +211,7 @@ nix build .#kimi-code-standalone # standalone 变体
 
 ### 自动更新
 
-GitHub Action 每日检查 npm registry。发现新的稳定版本时：
+GitHub Action 每 6 小时检查 npm registry。发现新的稳定版本时：
 
 1. `scripts/update-sources.sh` 用新版本号、URL 和 hash 重写 `sources.json`
 2. 两个变体在四个平台（x86_64/aarch64 × linux/darwin）上构建，包括

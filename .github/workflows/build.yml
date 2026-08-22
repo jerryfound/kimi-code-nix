@@ -1,4 +1,4 @@
-# Build verification for hand-made changes (the daily update pipeline
+# Build verification for hand-made changes (the 6-hourly update pipeline
 # validates its own commits, see update.yml).
 
 name: build

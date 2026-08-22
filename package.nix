@@ -5,7 +5,7 @@
 # artifacts and only assembles them, so a version bump costs seconds instead of
 # a full compile.
 #
-# All inputs come from `sources.json` (regenerated daily by CI from npm
+# All inputs come from `sources.json` (regenerated every 6 hours by CI from npm
 # registry metadata); every tarball is pinned by its registry integrity hash.
 #
 # Runtime layout mirrors `npm install -g @moonshot-ai/kimi-code`:

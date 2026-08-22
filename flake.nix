@@ -1,5 +1,5 @@
 {
-  description = "kimi-code (Moonshot AI CLI) packaged from the prebuilt npm artifacts, updated daily";
+  description = "kimi-code (Moonshot AI CLI) packaged from the prebuilt npm artifacts, updated every 6 hours";
 
   # Pinned to the 26.05 stable branch: nixpkgs 26.11 (unstable) dropped
   # x86_64-darwin entirely, while 26.05 keeps it (supported until end of 2026).
@@ -21,7 +21,7 @@
       forAllSystems = f: lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
 
       # Single source of truth for version + tarball hashes, regenerated
-      # daily by .github/workflows/update.yml from npm registry metadata.
+      # every 6 hours by .github/workflows/update.yml from npm registry metadata.
       sources = builtins.fromJSON (builtins.readFile ./sources.json);
     in
     {

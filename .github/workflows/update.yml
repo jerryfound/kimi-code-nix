@@ -1,4 +1,4 @@
-# Daily update pipeline.
+# Periodic update pipeline.
 #
 #   update  -> check npm for a new @moonshot-ai/kimi-code release; if found,
 #              regenerate sources.json and push it to the `update-candidate`
@@ -15,8 +15,8 @@ name: update
 
 on:
   schedule:
-    # Every day at 01:17 UTC (off the :00/:30 rush).
-    - cron: "17 1 * * *"
+    # Every 6 hours at :17 (off the :00/:30 rush).
+    - cron: "17 */6 * * *"
   workflow_dispatch:
 
 permissions:
